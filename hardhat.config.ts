@@ -1,6 +1,7 @@
 import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
 import { configVariable, defineConfig } from "hardhat/config";
 
+// Hardhat 3 configuration for Solidity tests, TypeScript tests, and local chain simulation.
 export default defineConfig({
   plugins: [hardhatToolboxViemPlugin],
   solidity: {
@@ -20,6 +21,7 @@ export default defineConfig({
     },
   },
   networks: {
+    // Deterministic local EDR networks used by tests and scripts.
     hardhatMainnet: {
       type: "edr-simulated",
       chainType: "l1",
@@ -28,6 +30,7 @@ export default defineConfig({
       type: "edr-simulated",
       chainType: "op",
     },
+    // Optional live network target. Secrets are read through Hardhat config variables.
     sepolia: {
       type: "http",
       chainType: "l1",

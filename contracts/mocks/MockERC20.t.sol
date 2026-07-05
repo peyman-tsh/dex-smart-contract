@@ -10,6 +10,7 @@ import {
 } from "./MockERC20.sol";
 import {IERC20Minimal} from "../interfaces/IERC20Minimal.sol";
 
+/// @notice Unit tests for the local mintable ERC20 test token.
 contract MockERC20Test is Test {
   MockERC20 private token;
 
@@ -18,6 +19,7 @@ contract MockERC20Test is Test {
   address private spender = address(0x5EED);
 
   function setUp() public {
+    // Fresh token per test keeps balances and allowances isolated.
     token = new MockERC20("Mock Token", "MOCK", 18);
   }
 

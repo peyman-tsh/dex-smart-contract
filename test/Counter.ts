@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import { network } from "hardhat";
 
+// Node.js integration tests for the starter Counter contract.
 describe("Counter", async function () {
   const { viem } = await network.create();
   const publicClient = await viem.getPublicClient();
@@ -22,7 +23,7 @@ describe("Counter", async function () {
     const counter = await viem.deployContract("Counter");
     const deploymentBlockNumber = await publicClient.getBlockNumber();
 
-    // run a series of increments
+    // Aggregate emitted events to verify on-chain state matches the event stream.
     for (let i = 1n; i <= 10n; i++) {
       await counter.write.incBy([i]);
     }

@@ -9,12 +9,14 @@ import {MockERC20} from "../mocks/MockERC20.sol";
 import {DexFactory} from "./DexFactory.sol";
 import {DexPool} from "./DexPool.sol";
 
+/// @notice Unit tests for deterministic pool creation and lookup.
 contract DexFactoryTest is Test {
   DexFactory private factory;
   MockERC20 private tokenA;
   MockERC20 private tokenB;
 
   function setUp() public {
+    // Each test starts with a fresh factory and token pair.
     factory = new DexFactory();
     tokenA = new MockERC20("Token A", "TKNA", 18);
     tokenB = new MockERC20("Token B", "TKNB", 18);
@@ -85,6 +87,7 @@ contract DexFactoryTest is Test {
     (token0, token1) = tokenA_ < tokenB_ ? (tokenA_, tokenB_) : (tokenB_, tokenA_);
   }
 
+  /// @dev Converts an address to the indexed-event topic encoding.
   function _topicForAddress(address value) private pure returns (bytes32) {
     return bytes32(uint256(uint160(value)));
   }

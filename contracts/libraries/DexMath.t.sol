@@ -10,6 +10,7 @@ import {
 } from "../errors/DexErrors.sol";
 import {DexMath} from "./DexMath.sol";
 
+/// @notice External wrapper used to test custom-error reverts from library calls.
 contract DexMathHarness {
   function sortTokens(address tokenA, address tokenB) external pure returns (address token0, address token1) {
     return DexMath.sortTokens(tokenA, tokenB);

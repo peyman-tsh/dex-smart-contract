@@ -4,6 +4,7 @@ pragma solidity ^0.8.28;
 import {Counter} from "./Counter.sol";
 import {Test} from "forge-std/Test.sol";
 
+/// @notice Solidity unit tests for the starter Counter contract.
 contract CounterTest is Test {
   Counter counter;
 

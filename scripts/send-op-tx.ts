@@ -1,5 +1,6 @@
 import { network } from "hardhat";
 
+// Example script for exercising Hardhat's OP-chain simulation support.
 const { viem } = await network.create({
   network: "hardhatOp",
   chainType: "op",
@@ -12,6 +13,7 @@ const [senderClient] = await viem.getWalletClients();
 
 console.log("Sending 1 wei from", senderClient.account.address, "to itself");
 
+// OP chains expose L1 data gas in addition to regular execution gas.
 const l1Gas = await publicClient.estimateL1Gas({
   account: senderClient.account.address,
   to: senderClient.account.address,

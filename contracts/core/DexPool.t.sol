@@ -14,6 +14,7 @@ import {MockERC20} from "../mocks/MockERC20.sol";
 import {DexFactory} from "./DexFactory.sol";
 import {DexPool} from "./DexPool.sol";
 
+/// @notice Unit tests for pool liquidity, LP accounting, swaps, and reserve sync.
 contract DexPoolTest is Test {
   DexFactory private factory;
   MockERC20 private tokenA;
@@ -25,6 +26,7 @@ contract DexPoolTest is Test {
   address private trader = address(0x7A0E);
 
   function setUp() public {
+    // Pools are always created through the factory to preserve production wiring.
     factory = new DexFactory();
     tokenA = new MockERC20("Token A", "TKNA", 18);
     tokenB = new MockERC20("Token B", "TKNB", 18);
@@ -187,11 +189,13 @@ contract DexPoolTest is Test {
     uint256 amount0,
     uint256 amount1
   ) private returns (uint256 liquidity) {
+    // The pool API expects tokens to be transferred before mint is called.
     _fundPool(amount0, amount1);
     liquidity = pool.mint(to);
   }
 
   function _fundPool(uint256 amount0, uint256 amount1) private {
+    // Helpers mint in token0/token1 order so reserve assertions stay deterministic.
     _token0().mint(address(this), amount0);
     _token1().mint(address(this), amount1);
     _token0().transfer(address(pool), amount0);
@@ -199,6 +203,7 @@ contract DexPoolTest is Test {
   }
 
   function _assertReserves(uint256 expectedReserve0, uint256 expectedReserve1) private view {
+    // Check both public variables and the tuple helper to catch API drift.
     assertEq(pool.reserve0(), expectedReserve0);
     assertEq(pool.reserve1(), expectedReserve1);
 

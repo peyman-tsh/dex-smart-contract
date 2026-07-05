@@ -29,9 +29,13 @@ contract DexPool is IDexPool {
   address public immutable factory;
   address public immutable token0;
   address public immutable token1;
+
+  // LP token metadata. Each pool is its own LP token.
   string public name = "Dex LP Token";
   string public symbol = "DLP";
   uint8 public constant decimals = 18;
+
+  // Cached reserves are updated after every mint, burn, swap, or sync.
   uint256 public reserve0;
   uint256 public reserve1;
   uint256 public totalSupply;
@@ -41,6 +45,7 @@ contract DexPool is IDexPool {
 
   uint256 private lockState = UNLOCKED;
 
+  /// @dev Simple reentrancy guard for token-transferring state transitions.
   modifier lock() {
     if (lockState != UNLOCKED) {
       revert Dex_Reentrancy();
@@ -65,17 +70,20 @@ contract DexPool is IDexPool {
     token1 = token1_;
   }
 
+  /// @notice Returns the cached reserves for token0 and token1.
   function getReserves() external view returns (uint256 reserve0_, uint256 reserve1_) {
     reserve0_ = reserve0;
     reserve1_ = reserve1;
   }
 
+  /// @notice Transfers LP tokens from the caller.
   function transfer(address to, uint256 value) external returns (bool) {
     _transfer(msg.sender, to, value);
 
     return true;
   }
 
+  /// @notice Approves LP token spending.
   function approve(address spender, uint256 value) external returns (bool) {
     if (spender == address(0)) {
       revert Dex_ZeroAddress();
@@ -88,6 +96,7 @@ contract DexPool is IDexPool {
     return true;
   }
 
+  /// @notice Transfers LP tokens through an allowance.
   function transferFrom(address from, address to, uint256 value) external returns (bool) {
     uint256 allowed = allowance[from][msg.sender];
 
@@ -122,6 +131,7 @@ contract DexPool is IDexPool {
     uint256 supply = totalSupply;
 
     if (supply == 0) {
+      // Lock the first MINIMUM_LIQUIDITY forever to avoid empty-supply edge cases.
       uint256 root = DexMath.sqrt(amount0 * amount1);
 
       if (root <= MINIMUM_LIQUIDITY) {
@@ -213,6 +223,7 @@ contract DexPool is IDexPool {
       revert Dex_InsufficientInputAmount();
     }
 
+    // Apply the 0.3% fee to input amounts and require the adjusted invariant to hold.
     uint256 balance0Adjusted = balance0 * FEE_DENOMINATOR - amount0In * SWAP_FEE;
     uint256 balance1Adjusted = balance1 * FEE_DENOMINATOR - amount1In * SWAP_FEE;
 
@@ -252,6 +263,7 @@ contract DexPool is IDexPool {
     emit Transfer(from, to, value);
   }
 
+  /// @dev Internal LP mint. Minting to address(0) is intentional for locked liquidity.
   function _mint(address to, uint256 value) private {
     totalSupply += value;
     balanceOf[to] += value;
@@ -259,6 +271,7 @@ contract DexPool is IDexPool {
     emit Transfer(address(0), to, value);
   }
 
+  /// @dev Internal LP burn from a concrete account.
   function _burn(address from, uint256 value) private {
     uint256 balance = balanceOf[from];
 
@@ -274,6 +287,7 @@ contract DexPool is IDexPool {
     emit Transfer(from, address(0), value);
   }
 
+  /// @dev Stores current token balances as reserves and emits the canonical Sync event.
   function _update(uint256 balance0, uint256 balance1) private {
     reserve0 = balance0;
     reserve1 = balance1;

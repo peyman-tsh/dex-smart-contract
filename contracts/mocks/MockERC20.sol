@@ -9,6 +9,7 @@ error MockERC20_InsufficientAllowance();
 
 /// @notice Simple mintable ERC20 token for local tests only.
 contract MockERC20 is IERC20Minimal {
+  // Mutable metadata keeps the mock simple and explicit for tests.
   string public name;
   string public symbol;
   uint8 public immutable decimals;
@@ -23,12 +24,14 @@ contract MockERC20 is IERC20Minimal {
     decimals = decimals_;
   }
 
+  /// @notice Transfers mock tokens from the caller.
   function transfer(address to, uint256 value) external returns (bool) {
     _transfer(msg.sender, to, value);
 
     return true;
   }
 
+  /// @notice Approves a spender for mock token transfers.
   function approve(address spender, uint256 value) external returns (bool) {
     if (spender == address(0)) {
       revert MockERC20_ZeroAddress();
@@ -41,6 +44,7 @@ contract MockERC20 is IERC20Minimal {
     return true;
   }
 
+  /// @notice Transfers mock tokens using allowance.
   function transferFrom(address from, address to, uint256 value) external returns (bool) {
     uint256 allowed = allowance[from][msg.sender];
 
@@ -61,6 +65,7 @@ contract MockERC20 is IERC20Minimal {
     return true;
   }
 
+  /// @notice Mints mock tokens without access control for deterministic tests.
   function mint(address to, uint256 value) external {
     if (to == address(0)) {
       revert MockERC20_ZeroAddress();
@@ -72,6 +77,7 @@ contract MockERC20 is IERC20Minimal {
     emit Transfer(address(0), to, value);
   }
 
+  /// @dev Shared transfer implementation for direct and allowance-based transfers.
   function _transfer(address from, address to, uint256 value) private {
     if (to == address(0)) {
       revert MockERC20_ZeroAddress();
